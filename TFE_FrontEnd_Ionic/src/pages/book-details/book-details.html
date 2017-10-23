@@ -1,0 +1,76 @@
+<!--
+  Generated template for the BookDetailsPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title> {{book.title}} </ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+	<h3>Details from {{book.title}} :</h3>
+	<ion-list>
+		<ion-item>
+			<ion-label>
+				Title :
+			</ion-label>
+			<ion-label item-center>
+				{{book?.title}}
+			</ion-label>
+		</ion-item>
+		<ion-item>
+			<ion-label>
+				Description :
+			</ion-label>
+			<ion-label item-center>
+				{{book?.description}}
+			</ion-label>
+		</ion-item>
+		<ion-item>
+			<ion-label>
+				Page count :
+			</ion-label>
+			<ion-label item-center>
+				{{book?.pageCount}}
+			</ion-label>
+		</ion-item>
+		<ion-item>
+			<ion-label>
+				Authors :
+			</ion-label>
+			<ion-label item-center>
+				{{book?.authors}}
+			</ion-label>
+		</ion-item>
+		<ion-item>
+			<ion-label>
+			 _id :
+			</ion-label>
+			<ion-label item-center>
+				{{book?._id}}
+			</ion-label>
+		</ion-item>
+		<ion-item>
+			<ion-label>
+			 Main Category :
+			</ion-label>
+			<ion-label item-center>
+				{{book?.mainCategory}}
+			</ion-label>
+		</ion-item>
+		<ion-item>
+			<ion-label>
+			 Categories :
+			</ion-label>
+			<ion-label item-center>
+				{{book?.categories}}
+			</ion-label>
+		</ion-item>
+	</ion-list>
+</ion-content>
