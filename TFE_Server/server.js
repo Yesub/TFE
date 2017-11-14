@@ -35,10 +35,10 @@ var port = process.env.PORT || 8080;        // set our port
 var router = express.Router();              // get an instance of the express Router
 
 // middleware to use for all requests
-router.use(function(req, res, next) {
+router.use(function (req, res, next) {
     // do logging
     console.log('Something is happening.');
-	res.header("Access-Control-Allow-Origin", "*"); 
+	res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Methods',    'GET,PUT,POST,DELETE,OPTIONS');
     res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
     next(); // make sure we go to the next routes and don't stop here
@@ -46,8 +46,8 @@ router.use(function(req, res, next) {
 
 
 // test route to make sure everything is working (accessed at GET http://localhost:8080/api)
-router.get('/', function(req, res) {
-    res.json({ message: 'hooray! welcome to our api!' });   
+router.get('/', function (req, res) {
+    res.json({ message: 'hooray! welcome to our api!' });
 });
 
 // more routes for our API will happen here
@@ -57,37 +57,37 @@ router.get('/', function(req, res) {
 router.route('/login')
 	
 	//enable a user to connect or create a new user
-	.post(function (req,res) {
+	.post(function (req, res) {
 		
-		if(req.body.addNew === 'true') {
+		if (req.body.addNew === 'true') {
 			var encryptedNewPassword = controllers.auth.passwordEncryption(req.body.password);
 			req.body.password = encryptedNewPassword;
 			controllers.users.addUser(req.body);
 		}
 		
 		var user = new User();
-		if(!req.body.alias) {
+		if (!req.body.alias) {
 			res.status(400).send('Alias required!');
 			return;
 		} else {
 			controllers.users.getUserByAlias(req.body.alias, function (result) {
 				user = result;
-				if(user === null) {
+				if (user === null) {
 					res.status(400).send('This alias doesn\'t exists!');
 					return;
 				}
-				if(!req.body.password) {
+				if (!req.body.password) {
 					res.status(400).send('Password required!');
 					return;
 				}
-			 	if (controllers.auth.log(req.body.password, user.password)) {
-				 	res.json(user);
-			 	} else {
+                if (controllers.auth.log(req.body.password, user.password)) {
+				    res.json(user);
+                } else {
 					res.status(400).send('It seems your password is unvalid.');
 					return;
-			 	}
+                }
 			});
-		}		
+		}
 	});
 
 // on routes that end in /books
@@ -95,28 +95,28 @@ router.route('/login')
 router.route('/books')
 
     // create a book (accessed at POST http://localhost:8080/api/books)
-    .post(function(req, res) {
+    .post(function (req, res) {
 
         var book = new Book();      // create a new instance of the Book model
-        if(req.body.title){
+        if (req.body.title) {
 			book.title = req.body.title;	// set the books name (comes from the request)
-		}		  
+		}
 		
 		// save the book and check for errors
-        book.save(function(err) {
-            if (err){
+        book.save(function (err) {
+            if (err) {
 				res.send(err);
 			} else {
 				
 				res.json({ message: 'Book created!' });
-			}            
+			}   
         });
 
     })
 
 	// get all the books (accessed at GET http://localhost:8080/api/books)
-    .get(function(req, res) {
-        Book.find(function(err, books) {
+    .get(function (req, res) {
+        Book.find(function (err, books) {
             if (err) {
 				console.log(err);
 				res.send(err);
@@ -131,20 +131,22 @@ router.route('/books')
 // ----------------------------------------------------
 router.route('/books/search')
 	//search for a book with search terms (accessed at POST http://localhost:8080/api/books/search)
-	.post(function(req, res) {
+	.post(function (req, res) {
 		
 		//this function add a list of books to the DB
-		var addToDb = function(listOfBooksToAdd) {
-			Book.find(function(err, books) {
-				if(err) {
+		var addToDb = function (listOfBooksToAdd) {
+
+			Book.find(function (err, books) {
+				if (err) {
 					console.log(err);
 				} else {
-					for (i = 0; i < books.length ; i++) {						
-						for( j = 0 ; j<listOfBooksToAdd.items.length ; j++) {							
-							for( k = 0 ; k < listOfBooksToAdd.items[j].volumeInfo.industryIdentifiers.length ; k++) {								
-								for(l = 0 ; l < books[i].industryIdentifiers.length ; l++) {
-									//console.log("Is marked with fromGoogle : "+listOfBooksToAdd.items[j].fromGoogle)
-									if((books[i].industryIdentifiers[l].type === listOfBooksToAdd.items[j].volumeInfo.industryIdentifiers[k].type && books[i].industryIdentifiers[l].identifier === listOfBooksToAdd.items[j].volumeInfo.industryIdentifiers[k].identifier) || listOfBooksToAdd.items[j].fromGoogle) {
+                    console.log(books.length);
+					for (i = 0; i < books.length; i++) {
+						for ( j = 0 ; j<listOfBooksToAdd.items.length ; j++) {							
+							for ( k = 0 ; k < listOfBooksToAdd.items[j].volumeInfo.industryIdentifiers.length ; k++) {								
+								for (l = 0 ; l < books[i].industryIdentifiers.length ; l++) {
+									console.log("Is marked with fromGoogle : "+listOfBooksToAdd.items[j].fromGoogle)
+									if ((books[i].industryIdentifiers[l].type === listOfBooksToAdd.items[j].volumeInfo.industryIdentifiers[k].type && books[i].industryIdentifiers[l].identifier === listOfBooksToAdd.items[j].volumeInfo.industryIdentifiers[k].identifier) || listOfBooksToAdd.items[j].fromGoogle) {
 										//console.log("yes");
 									} else {
 										listOfBooksToAdd.items[j].fromGoogle = true;
@@ -163,10 +165,11 @@ router.route('/books/search')
 		//this function is called when the data have been take out from Google API
 		var onEnd = function(toSend) {
 			if(toSend.totalItems > 0) {
-				addToDb(toSend);
+                console.log("Adding");
+				books.addToDb(toSend);
 				var listToSend = new Array;
-				for(let m = 0; m < toSend.items.length ; m++) {
-					listToSend.push(controllers.books.fromGoogleToDB(toSend.items[i]));
+				for (var m = 0; m < toSend.items.length ; m++) {
+					listToSend.push(controllers.books.fromGoogleToDB(toSend.items[m]));
 				}
 				res.json(listToSend);
 			} else {
@@ -279,7 +282,7 @@ router.route('/books/search')
 				} else {
 					if(intitle != "") {
 						console.log("Go intitle");
-						for(let i=0 ; i<books.length ; i++) {
+						for(var i=0 ; i<books.length ; i++) {
 							if(!aContainsB(books[i].title.toLocaleLowerCase(),intitle.toLocaleLowerCase())) {
 								books.splice(i,1);
 								i--;
@@ -288,10 +291,10 @@ router.route('/books/search')
 					}
 					if(inauthor != "") {
 						console.log("Go inauthor");
-						for(let i=0 ; i<books.length ; i++) {
+						for(var i=0 ; i<books.length ; i++) {
 							if(books[i].authors){
 								var authorInAuthorsList = false;
-								for(let j=0 ; j<books[i].authors.length ; j++) {
+								for(var j=0 ; j<books[i].authors.length ; j++) {
 									if(aContainsB(books[i].authors[j].toLocaleLowerCase(),inauthor.toLocaleLowerCase())) {
 										authorInAuthorsList = true;
 									}
@@ -310,13 +313,13 @@ router.route('/books/search')
 					
 					if(incategory != "") {
 						console.log("Go incategory");
-						for(let i=0 ; i<books.length ; i++) {
+						for(var i=0 ; i<books.length ; i++) {
 							var categoryInCategoriesList = false;
 							if(books[i].mainCategory && aContainsB(books[i].mainCategory.toLocaleLowerCase(),incategory.toLocaleLowerCase())) {
 								categoryInCategoriesList = true;
 							}
 							if(books[i].categories) {
-								for(let j=0 ; j<books[i].categories.length ; j++) {
+								for(var j=0 ; j<books[i].categories.length ; j++) {
 									if(aContainsB(books[i].categories[j].toLocaleLowerCase(),incategory.toLocaleLowerCase())) {
 										categoryInCategoriesList = true;
 									}

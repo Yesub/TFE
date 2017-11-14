@@ -18,6 +18,7 @@ exports.add = function (fields) {
 	
 };
 
+//this function formatize fields of a book which come from Google DB
 exports.fromGoogleToDB = function (googleBook) {
 	var fields = new Book();
 	if(googleBook.volumeInfo.title) {
@@ -105,4 +106,32 @@ exports.fromGoogleToDB = function (googleBook) {
 
 exports.searchBook = function (searchQuery) {
 	
+}
+
+//this function add a list of books to the DB
+exports.addToDb = function (listOfBooksToAdd) {
+
+    Book.find(function (err, books) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(books.length);
+            for (i = 0; i < books.length; i++) {
+                for ( j = 0 ; j<listOfBooksToAdd.items.length ; j++) {							
+                    for ( k = 0 ; k < listOfBooksToAdd.items[j].volumeInfo.industryIdentifiers.length ; k++) {								
+                        for (l = 0 ; l < books[i].industryIdentifiers.length ; l++) {
+                            console.log("Is marked with fromGoogle : "+listOfBooksToAdd.items[j].fromGoogle)
+                            if ((books[i].industryIdentifiers[l].type === listOfBooksToAdd.items[j].volumeInfo.industryIdentifiers[k].type && books[i].industryIdentifiers[l].identifier === listOfBooksToAdd.items[j].volumeInfo.industryIdentifiers[k].identifier) || listOfBooksToAdd.items[j].fromGoogle) {
+                                //console.log("yes");
+                            } else {
+                                listOfBooksToAdd.items[j].fromGoogle = true;
+                                controllers.books.add(listOfBooksToAdd.items[j]);
+                                //console.log("no");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
 }
