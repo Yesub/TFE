@@ -8,6 +8,8 @@ var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
 var https = require('https');
+
+var expressJWT = require('express-jwt');
 var jwt = require('jsonwebtoken');
 //COMMIT
 var donothing;
@@ -27,6 +29,9 @@ var controllers = {
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+//middleware which verify if the token sended is rigth. Let some route free of checking
+app.use(expressJWT({ secret: 'thisissecret'}).unless({ path: ['/api/login', '/api/signup', '/api/signup/checkalias']})); 
 
 var port = process.env.PORT || 8080;        // set our port
 
@@ -52,49 +57,103 @@ router.get('/', function (req, res) {
 
 // more routes for our API will happen here
 
-//on routes that end in /auth
+//on routes that end in /login
 //------------------------------------------------------
 router.route('/login')
 	
-	//enable a user to connect or create a new user
+	/**
+	 * Receive an alias and a password.
+	 * Send back a token and a status '1' if the user exists and the password match 
+	 * If found nothing, send back an error status and an error message
+	 * Error status :
+	 * - 2 : this alias doesn't exist
+	 * - 3 : the password is invalid
+	 * - 4 : no alias found in the request
+	 * - 5 : no password found in the request
+	 */
 	.post(function (req, res) {
-		
-		if (req.body.addNew === 'true') {
-			var encryptedNewPassword = controllers.auth.passwordEncryption(req.body.password);
-			req.body.password = encryptedNewPassword;
-			controllers.users.addUser(req.body);
-		}
 		
 		var user = new User();
 		if (!req.body.alias) {
-			res.status(400).send('Alias required!');
+			var response = new Object();
+			response.status = '4';
+			response.message = 'No alias found in the request';
+			res.status(200).json(response);
 			return;
 		} else {
 			controllers.users.getUserByAlias(req.body.alias, function (result) {
 				user = result;
+				console.log(user);
 				if (user === null) {
-					res.status(400).send('This alias doesn\'t exists!');
+					var response = new Object();
+					response.status = '2';
+					response.message = 'This alias doesn\'t exists';
+					res.status(200).json(response);
 					return;
 				}
 				if (!req.body.password) {
-					res.status(400).send('Password required!');
+					var response = new Object();
+					response.status = '5';
+					response.message = 'No password found in the request';
+					res.status(200).json(response);
 					return;
 				}
-                if (controllers.auth.log(req.body.password, user.password)) {
-				    res.json(user);
+                if (controllers.auth.verifyPasswordsEquality(req.body.password, user.password)) {
+					var token = jwt.sign({ alias: user.alias, userId: user._id}, 'thisissecret');
+					var response = new Object();
+					response.status = '1';
+					response.message = 'Log In';
+					response.token = token;
+					res.status(200).json(response);
+					return;
+					/*
+					var uncryptedToken = jwt.decode(token);
+					console.log(uncryptedToken.alias);
+					console.log("test");
+					*/
                 } else {
-					res.status(400).send('It seems your password is unvalid.');
+					var response = new Object();
+					response.status = '3';
+					response.message = 'The password is invalid';
+					res.status(200).json(response);
 					return;
                 }
 			});
 		}
 	});
 
-// on routes that end in /books
-// ----------------------------------------------------
-router.route('/books')
+//on routes that end in /signup
+//---------------------------------------------------
+router.route('/signup')
+	.post(function (req, res) {
 
-    // create a book (accessed at POST http://localhost:8080/api/books)
+		if (req.body.addNew === 'true') {
+			var encryptedNewPassword = controllers.auth.passwordEncryption(req.body.password);
+			req.body.password = encryptedNewPassword;
+			controllers.users.addUser(req.body);
+			res.json('User added');
+		}
+
+		//res.json('Attempting to signing up');
+	})
+
+//on routes that end in /signup/checkalias
+//---------------------------------------------------
+router.route('/signup/checkalias')
+	.get(function(req, res) {
+		var aliasToCheck = req.params.alias;
+		if(users.getUserByAlias === null) {
+			res.json("true");
+		} else {
+			res.json("false")
+		}
+	})
+
+//on routes that end in /book
+//----------------------------------------------------
+router.route('/book')
+
+    // create a book (accessed at POST http://localhost:8080/api/book)
     .post(function (req, res) {
 
         var book = new Book();      // create a new instance of the Book model
@@ -113,6 +172,11 @@ router.route('/books')
         });
 
     })
+
+
+// on routes that end in /books
+// ----------------------------------------------------
+router.route('/books')
 
 	// get all the books (accessed at GET http://localhost:8080/api/books)
     .get(function (req, res) {

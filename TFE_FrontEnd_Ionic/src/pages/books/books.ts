@@ -32,7 +32,12 @@ export class BooksPage {
 	
 	submitAttempt: boolean = false;
 	
-	constructor(public navCtrl: NavController, public navParams: NavParams, private booksProvider: BookbookApiBooksProvider, public formBuilder: FormBuilder) {
+	constructor(
+		public navCtrl: NavController, 
+		public navParams: NavParams, 
+		private booksProvider: BookbookApiBooksProvider,
+		public formBuilder: FormBuilder) {
+
 		booksProvider.load().subscribe(books => {
 			for(var j = 0; j < books.length ; j++) {
 				this.books.push(books[j]);

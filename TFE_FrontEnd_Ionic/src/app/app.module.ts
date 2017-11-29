@@ -12,12 +12,13 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { BookbookApiBooksProvider } from '../providers/bookbook-api-books/bookbook-api-books';
 import { UserDataProvider } from '../providers/api-user-data/user-data';
+import { LoginApi } from '../providers/api-login/login';
 
 @NgModule({
   declarations: [
     MyApp,
     BooksPage,
-	BookDetailsPage,
+	  BookDetailsPage,
   	LoginPage
   ],
   imports: [
@@ -37,7 +38,8 @@ import { UserDataProvider } from '../providers/api-user-data/user-data';
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     BookbookApiBooksProvider,
-  	UserDataProvider
+    UserDataProvider,
+    LoginApi
   ]
 })
 export class AppModule {}

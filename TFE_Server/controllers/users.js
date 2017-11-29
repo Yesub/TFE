@@ -12,6 +12,8 @@ exports.getUserByAlias = function (alias, callback) {
 							callback(users[a]);
 						}
 						myLoopA(a+1);
+					} else {
+						callback(null);
 					}
 
 				}

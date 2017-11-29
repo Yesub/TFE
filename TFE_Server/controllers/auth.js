@@ -3,31 +3,8 @@ var crypto = require("crypto");
 var algo = 'aes-256-ctr';
 var secret = "aZdFg5P99Tru87";
 
-exports.log = function (passwordFromClient, passwordFromDB) {
+exports.verifyPasswordsEquality = function (passwordFromClient, passwordFromDB) {
 	if(passwordFromClient && passwordFromDB) {
-		/*
-		console.log("Password before encryption : "+password);
-		var ciphertext = CryptoJS.AES.encrypt(password, secret);
-		console.log("Password after encryption : "+ciphertext);
-		*/
-		
-		/*
-		var bytesPasswordFromDB = CryptoJS.AES.decrypt(passwordFromDB.toString(), secret);
-		console.log(bytesPasswordFromDB);
-		var decryptedPasswordFromDB = bytesPasswordFromDB.toString(CryptoJS.enc.Utf8);
-		console.log(decryptedPasswordFromDB);
-		
-		var bytespasswordFromClient = CryptoJS.AES.decrypt(passwordFromClient.toString(), secret);
-		console.log(bytespasswordFromClient);
-		var decryptedpasswordFromClient = bytespasswordFromClient.toString(CryptoJS.enc.Utf8);
-		console.log(decryptedpasswordFromClient);
-		
-		if(bytespasswordFromClient === bytesPasswordFromDB) {
-			return true;
-		} else {
-			return false;
-		}
-		*/
 		if(exports.passwordDecryption(passwordFromDB)===passwordFromClient) {
 			return true;
 		} else {

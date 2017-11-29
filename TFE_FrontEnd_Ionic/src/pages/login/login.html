@@ -14,12 +14,18 @@
 
 
 <ion-content padding>
+
+	<p *ngIf="submitAttempt && !loginForm.valid" style="color: #ea6153;">Please fill out all details accurately.</p>
 	
 	<form [formGroup]="loginForm">
 
 		<ion-item>
-			<ion-label floating> Login</ion-label>
-			<ion-input formControlName="login" type="text"></ion-input>
+			<ion-label floating> Alias</ion-label>
+			<ion-input formControlName="alias" type="text" [class.invalid]="!loginForm.controls.alias.valid && (loginForm.controls.alias.dirty || submitAttempt)"></ion-input>
+		</ion-item>
+
+		<ion-item *ngIf="!loginForm.controls.alias.valid && (loginForm.controls.alias.dirty || submitAttempt)">
+				<p>Alias should be at least 3 characters.</p>
 		</ion-item>
 
 		<ion-item>
@@ -29,6 +35,6 @@
 			
 	</form>
 	
-	<button ion-button (click)='login()'>Try it</button>
+	<button [disabled]="!loginForm.valid" ion-button (click)='login()'>Log In</button>
 
 </ion-content>
