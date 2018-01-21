@@ -5,8 +5,8 @@ import { NavController, NavParams, MenuController, AlertController, LoadingContr
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { BooksPage } from '../books/books';
 
-import {LoginApi} from '../../providers/api-login/login';
-
+import { LoginApi } from '../../providers/api-login/login';
+import { Storage } from '@ionic/storage';
 
 /**
  * Generated class for the LoginPage page.
@@ -31,7 +31,9 @@ export class LoginPage {
 		public menu: MenuController,
 		public alertCtrl: AlertController,
 		public loadingCtrl: LoadingController,
-		private apiLogin: LoginApi)
+		private apiLogin: LoginApi,
+		public storage: Storage
+		)
 	{	  
 		this.loginForm = formBuilder.group({
 		  alias: ['', Validators.compose([Validators.required, Validators.minLength(3)])],
@@ -42,7 +44,11 @@ export class LoginPage {
 	ionViewDidLoad() {
 		console.log('ionViewDidLoad LoginPage');
 	}
-
+	/**
+	 * If the From is valid try to log the user with alias and password
+	 * If info are valid, the API send back a status ("1" if valid) and a token which is store
+	 * WHel logged the user is sent to BooksPage
+	 */
 	login() {
 		
 		this.submitAttempt = true;
@@ -59,11 +65,21 @@ export class LoginPage {
 			};
 
 			this.apiLogin.log(body).subscribe(token => {
-				console.log(token.status);
+				//console.log(token.status);
 				if(token.status != '1') {
 					let alert = this.alertCtrl.create({
 						title:'Error in Logging', 
 						subTitle:token.message,
+						buttons:['OK']
+					});
+					alert.present();
+				} else if (token.status === '1') {
+					this.storage.set('token',token.token);
+					this.navCtrl.setRoot(BooksPage);
+				} else {
+					let alert = this.alertCtrl.create({
+						title:'Unknown error', 
+						subTitle:'An unknown error occured, please try again.',
 						buttons:['OK']
 					});
 					alert.present();
@@ -73,9 +89,6 @@ export class LoginPage {
 
 			
 		}
-		
-		//this.navCtrl.setRoot(BooksPage);
-		//this.navCtrl.push(BooksPage);
 	}
 
 }

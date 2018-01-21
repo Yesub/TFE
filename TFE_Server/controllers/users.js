@@ -1,5 +1,21 @@
 var User = require('../models/user');
 
+exports.getUserById = function (_id, callback) {
+	if(_id) {
+		User.findOne({_id: _id}, function (err, user) {
+			if (err) {
+
+			} else {
+				if (user) {
+					callback(user);
+				} else {
+
+				}
+			}
+		}) 
+	}
+};
+
 exports.getUserByAlias = function (alias, callback) {
 	if(alias) {
 		User.find(function(err,users) {

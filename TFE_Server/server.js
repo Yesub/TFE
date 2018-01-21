@@ -31,7 +31,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //middleware which verify if the token sended is rigth. Let some route free of checking
-app.use(expressJWT({ secret: 'thisissecret'}).unless({ path: ['/api/login', '/api/signup', '/api/signup/checkalias']})); 
+app.use(expressJWT({ secret: 'thisissecret'})
+	.unless({ path: ['/api/login', '/api/signup', '/api/signup/checkalias']})); 
 
 var port = process.env.PORT || 8080;        // set our port
 
@@ -42,10 +43,11 @@ var router = express.Router();              // get an instance of the express Ro
 // middleware to use for all requests
 router.use(function (req, res, next) {
     // do logging
-    console.log('Something is happening.');
-	res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Methods',    'GET,PUT,POST,DELETE,OPTIONS');
-    res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+	console.log('Something is happening.');
+	console.log(req);
+	res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
     next(); // make sure we go to the next routes and don't stop here
 });
 
@@ -54,8 +56,6 @@ router.use(function (req, res, next) {
 router.get('/', function (req, res) {
     res.json({ message: 'hooray! welcome to our api!' });
 });
-
-// more routes for our API will happen here
 
 //on routes that end in /login
 //------------------------------------------------------
@@ -126,7 +126,7 @@ router.route('/login')
 //---------------------------------------------------
 router.route('/signup')
 	.post(function (req, res) {
-
+		
 		if (req.body.addNew === 'true') {
 			var encryptedNewPassword = controllers.auth.passwordEncryption(req.body.password);
 			req.body.password = encryptedNewPassword;
@@ -134,19 +134,38 @@ router.route('/signup')
 			res.json('User added');
 		}
 
-		//res.json('Attempting to signing up');
 	})
 
 //on routes that end in /signup/checkalias
 //---------------------------------------------------
 router.route('/signup/checkalias')
 	.get(function(req, res) {
-		var aliasToCheck = req.params.alias;
+		//console.log(req.query.test);
+		var aliasToCheck = req.query.alias;
 		if(users.getUserByAlias === null) {
 			res.json("true");
 		} else {
 			res.json("false")
 		}
+	})
+
+//on routes that end in /user
+//---------------------------------------------------
+router.route('/user')
+	.get(function(req,res) {
+		console.log(req.query);
+		var token = req.query.token;
+		/*
+		var uncryptedToken = jwt.decode(token);
+		console.log(uncryptedToken.alias);
+		console.log("test");
+		*/
+		console.log(token);
+		var uncryptedToken = jwt.decode(token);
+		console.log(uncryptedToken.userId);
+		controllers.users.getUserById(uncryptedToken.userId, function(user) {
+			res.json(user);
+		});
 	})
 
 //on routes that end in /book

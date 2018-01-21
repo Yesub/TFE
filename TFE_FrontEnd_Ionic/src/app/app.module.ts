@@ -13,6 +13,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { BookbookApiBooksProvider } from '../providers/bookbook-api-books/bookbook-api-books';
 import { UserDataProvider } from '../providers/api-user-data/user-data';
 import { LoginApi } from '../providers/api-login/login';
+import { IonicStorageModule } from '@ionic/storage';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { LoginApi } from '../providers/api-login/login';
     BrowserModule,
   	HttpModule,
     IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot(),
   ],
   bootstrap: [IonicApp],
   entryComponents: [
